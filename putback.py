@@ -13,7 +13,7 @@ output = filelist['filename'].tolist()
 
 for f in tqdm(range(len(output))):
     if(os.path.isfile("./original/" + output[f])):
-        
+        #print(output[f])
         #get image number
         
         #imno = output[0][-5]
@@ -28,18 +28,21 @@ for f in tqdm(range(len(output))):
         
         loop = len(startx) * len(starty)
         
-        original = Image.open('./original/' + image + ".jpg")  
+        if loop < 4:
         
-        for i in range(loop):
-            #cropped = Image.open('./colorized/' + output[0])
-            cropped = Image.open('./outputs/' + image + "_" + str(i) + ".jpg")    
-            sx = startx[i]
-            if i < 3:
-                sy = starty[0]
-            else:
-                sy = starty[1]
+            original = Image.open('./original/' + image + ".jpg")  
             
-            original.paste(cropped, (sx, sy))
-          
-        #Saved in the same relative location 
-        original.save("./processed/" + image + ".jpg") 
+            for i in range(loop):
+                #cropped = Image.open('./colorized/' + output[0])
+                cropped = Image.open('./outputs/' + image + "_" + str(i) + ".jpg") 
+                #print(i)
+                sx = startx[i]
+                if i < 3:
+                    sy = starty[0]
+                else:
+                    sy = starty[1]
+                
+                original.paste(cropped, (sx, sy))
+              
+            #Saved in the same relative location 
+            original.save("./processed/" + image + ".jpg") 
