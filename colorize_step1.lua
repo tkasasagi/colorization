@@ -13,20 +13,23 @@
 --]]
 
 
-require 'nn'
-require 'nngraph'
+--require 'nn'
+--require 'nngraph'
 require 'image'
+require 'hdf5'
+
+torch.setnumthreads(1)
 
 local infile  = arg[1]
 local outfile = arg[2] or 'out.png'
 local netfile = arg[3] or 'colornet_imagenet.t7'
 
-local d        = torch.load( netfile )
-local datamean = d.mean
-local model    = d.model:float()
+-- local d        = torch.load( netfile )
+-- local datamean = d.mean
+local datamean = 0.4588405229157
+-- local model    = d.model:float()
 
-torch.setnumthreads(1)
---print(torch.getnumthreads())
+print(datamean)
 
 local function pred2rgb( x, data )
    local I = torch.cat( data[1][{{1},{},{}}]:float(),
@@ -45,10 +48,13 @@ local X2 = image.scale( I, torch.round(I:size(3)/8)*8, torch.round(I:size(2)/8)*
 local X1 = image.scale( X2, 224, 224 ):float()
 X1 = X1:reshape( 1, X1:size(1), X1:size(2), X1:size(3) )
 X2 = X2:reshape( 1, X2:size(1), X2:size(2), X2:size(3) )
-model.forwardnodes[9].data.module.modules[3].nfeatures = X2:size(3)/8
-model.forwardnodes[9].data.module.modules[4].nfeatures = X2:size(4)/8
 
-image.save( outfile, pred2rgb( I:float(), model:forward( {X1, X2} ) ) )
+local myFile = hdf5.open('x.h5', 'w')
+myFile:write('x1', X1)
+myFile:write('x2', X2)
+myFile:close()
 
-
-
+-- model.forwardnodes[9].data.module.modules[3].nfeatures = X2:size(3)/8
+-- model.forwardnodes[9].data.module.modules[4].nfeatures = X2:size(4)/8
+--
+-- image.save( outfile, pred2rgb( I:float(), model:forward( {X1, X2} ) ) )
